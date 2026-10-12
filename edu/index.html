@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>교육과정 자동화</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%234f46e5'/%3E%3Ctext x='16' y='22' font-size='17' font-family='sans-serif' font-weight='800' fill='white' text-anchor='middle'%3E교%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/table.css">
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand">
+      <span class="mark">교</span><span class="name">교육과정 자동화</span>
+      <button type="button" class="collapse" id="collapse" title="메뉴 접기/펴기"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
+    </div>
+    <nav id="nav"></nav>
+    <div class="side-foot">
+      <span class="year" id="foot-year"></span>
+      <span>넣은 자료는 이 브라우저에만 저장되고 밖으로 나가지 않습니다.</span>
+      <button type="button" id="reset-all">모든 입력 지우기</button>
+    </div>
+  </aside>
+  <main class="main">
+    <div id="vendor-warn" class="vendor-warn"></div>
+    <div id="view" class="view"></div>
+  </main>
+</div>
+<div id="toasts" class="toasts"></div>
+<!-- 내보내기(PDF·PNG)용으로 화면 밖에 표를 그리는 곳 -->
+<div id="export-stage" style="position:fixed;left:-10000px;top:0;width:1100px;background:#fff"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.1.1/tesseract.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script src="js/core/util.js"></script>
+<script src="js/read/pdfparse.js"></script>
+<script src="js/read/imgparse.js"></script>
+<script src="js/read/xlsxparse.js"></script>
+<script src="js/read/creditpdf.js"></script>
+<script src="js/read/signupxlsx.js"></script>
+<script src="js/calc/orgplan.js"></script>
+<script src="js/core/curriculum.js"></script>
+<script src="js/core/share-link.js"></script>
+<script src="js/core/pyeonje-layout.js"></script>
+<script src="js/core/assign.js"></script>
+<script src="js/core/mapping.js"></script>
+<script src="js/core/store.js"></script>
+<script src="js/calc/allocation.js"></script>
+<script src="js/calc/moving.js"></script>
+<script src="js/calc/credits.js"></script>
+<script src="js/core/derive.js"></script>
+<script src="js/export/template-orgplan.js"></script>
+<script src="js/export/orgplan-xlsx.js"></script>
+<script src="js/export/pyeonje-xlsx.js"></script>
+<script src="js/export/hwpx-base.js"></script>
+<script src="js/export/pyeonje-hwpx.js"></script>
+<script src="js/export/pyeonje-image.js"></script>
+<script src="js/export/moving-xlsx.js"></script>
+<script src="js/export/alloc-xlsx.js"></script>
+<script src="js/export/stats-xlsx.js"></script>
+<script src="js/export/credits-xlsx.js"></script>
+
+<script src="js/ui/table.js"></script>
+<script src="js/ui/shell.js"></script>
+<script src="js/ui/prep.js"></script>
+<script src="js/ui/tab-pyeonje.js"></script>
+<script src="js/ui/tab-orgplan.js"></script>
+<script src="js/ui/tab-alloc.js"></script>
+<script src="js/ui/tab-moving.js"></script>
+<script src="js/ui/tab-credits.js"></script>
+<script src="js/ui/tab-share.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

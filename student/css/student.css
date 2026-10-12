@@ -1,0 +1,24 @@
+/* 학생용 웹에만 있는 것: 선택 칸, 과목 창, 요약 */
+table.grid td.sl { white-space: nowrap; cursor: pointer; font-weight: 700; color: var(--accent-strong); text-decoration: underline dotted; }
+table.grid td.sl.done { color: var(--ok-ink); background: var(--ok-soft) !important; text-decoration: none; }
+table.grid td.sl.warn { color: var(--warn-ink); }
+table.grid td.sl:hover { background: var(--hover) !important; }
+.popover.pick { width: min(380px, calc(100vw - 32px)); max-height: 60vh; overflow: auto; }
+.popover.pick label { display: flex; align-items: center; gap: 8px; padding: 4px 2px; font-size: 13px; }
+.popover.pick label.locked { color: var(--faint); }
+.popover.pick .why { margin-left: auto; font-size: 11.5px; color: var(--faint); }
+.popover.pick .info { margin-left: auto; font-size: 11.5px; }
+.popover.pick label.locked .info { margin-left: 6px; }
+.modal { position: fixed; inset: 0; background: rgba(15, 23, 42, .55); z-index: 60; display: flex; align-items: flex-start; justify-content: center; overflow: auto; padding: 24px 16px; }
+.modal[hidden] { display: none; }
+.modal .sheet { background: #fff; border-radius: 12px; max-width: 920px; width: 100%; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.modal .sheet img { width: 100%; height: auto; border: 1px solid var(--line); border-radius: 8px; }
+.sum-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+.sum-grid .it { border: 1px solid var(--line-strong); border-radius: 10px; padding: 8px 10px; display: flex; flex-direction: column; gap: 2px; }
+.sum-grid .it b { font-size: 18px; }
+.sum-grid .it.bad { border-color: var(--err); background: var(--err-soft); }
+.sum-grid .it.good { border-color: var(--ok-line); background: var(--ok-soft); }
+.subj-group h3 { margin: 14px 0 6px; font-size: 14px; }
+.subj-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.subj-item { border: 1px solid var(--line-strong); background: #fff; border-radius: 999px; padding: 5px 11px; font-size: 13px; cursor: pointer; }
+.subj-item:hover { border-color: var(--accent); color: var(--accent); }
