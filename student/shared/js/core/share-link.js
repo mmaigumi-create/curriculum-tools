@@ -1,10 +1,11 @@
 // 학생용 링크: 편제를 압축해 주소 #p= 뒤에 담고, 학생용 웹에서 푼다
 (function (root, factory) {
-  const api = factory();
+  const api = factory(root);
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.EduShareLink = api;
-})(typeof self !== 'undefined' ? self : this, function () {
+})(typeof self !== 'undefined' ? self : this, function (root) {
   'use strict';
+  const D = typeof require === 'function' ? require('./subject-dict.js') : root.EduSubjectDict;
   const V = 1;
   const BAD = '링크가 잘못되었습니다. 선생님께 새 링크를 받으세요.';
   const NO_DECOMP = '이 브라우저에서는 링크를 열 수 없습니다. 브라우저를 최신으로 업데이트하거나 크롬 등 다른 브라우저로 열어 주세요.';
@@ -33,9 +34,46 @@
     return new Uint8Array(await new Response(new Blob([u8]).stream().pipeThrough(stream)).arrayBuffer());
   }
 
+  // 짧은 모양(배열): [2, 학교, 날짜, 안내서, 입학년도들]. 이름은 목록(subject-dict.js)에 똑같이 있으면 번호, 없으면 글자 그대로.
+  // 예전 링크는 객체 모양({v:1,...})이라 첫 글자로 구별한다.
+  const SHORT = 2;
+  const SEM_KEYS = ['1-1', '1-2', '2-1', '2-2', '3-1', '3-2'];
+  const toNum = list => s => { const i = list.indexOf(s); return i >= 0 ? i : s; };
+  const fromNum = list => v => (typeof v === 'number' ? list[v] : v);
+  const blankToNull = v => (v === '' ? null : v);
+  const nullToBlank = v => (v === null ? '' : v);
+
+  function shorten(pkg) {
+    const name = toNum(D.NAMES); const kyo = toNum(D.KYO); const gubun = toNum(D.GUBUN);
+    return [SHORT, pkg.school, pkg.made, pkg.guide, pkg.cohorts.map(c => [
+      c.year, c.title === `${c.year}학년도 입학생` ? 0 : c.title,
+      c.rows.map(r => [kyo(r.kyo), gubun(r.gubun), r.names.map(name), r.cross ? 1 : 0, blankToNull(r.base), blankToNull(r.credit), SEM_KEYS.map(k => (k in r.sem ? r.sem[k] : null))]),
+      c.blocks.map(b => [SEM_KEYS.indexOf(b.sem), b.from, b.to, blankToNull(b.value)]),
+      c.notes.map(n => [n.from, n.to, n.text]),
+    ])];
+  }
+
+  function lengthen(a) {
+    const name = fromNum(D.NAMES); const kyo = fromNum(D.KYO); const gubun = fromNum(D.GUBUN);
+    const [, school, made, guide, cohorts] = a;
+    return {
+      v: V, school, made, guide,
+      cohorts: cohorts.map(([year, title, rows, blocks, notes]) => ({
+        year, title: title === 0 ? `${year}학년도 입학생` : title,
+        rows: rows.map(([k, g, names, cross, base, credit, sems]) => {
+          const sem = {};
+          SEM_KEYS.forEach((key, i) => { if (sems[i] !== null) sem[key] = sems[i]; });
+          return { kyo: kyo(k), gubun: gubun(g), names: names.map(name), cross: !!cross, base: nullToBlank(base), credit: nullToBlank(credit), sem };
+        }),
+        blocks: blocks.map(([s, from, to, value]) => ({ sem: SEM_KEYS[s], from, to, value: nullToBlank(value) })),
+        notes: notes.map(([from, to, text]) => ({ from, to, text })),
+      })),
+    };
+  }
+
   async function encode(pkg) {
     if (typeof CompressionStream === 'undefined') throw new Error(NO_COMP);
-    return b64url(await pipe(new TextEncoder().encode(JSON.stringify(pkg)), new CompressionStream('deflate-raw')));
+    return b64url(await pipe(new TextEncoder().encode(JSON.stringify(shorten(pkg))), new CompressionStream('deflate-raw')));
   }
 
   function valid(p) {
@@ -50,6 +88,7 @@
     let pkg;
     try {
       pkg = JSON.parse(new TextDecoder().decode(await pipe(unb64url(String(code || '')), new DecompressionStream('deflate-raw'))));
+      if (Array.isArray(pkg)) pkg = pkg[0] === SHORT ? lengthen(pkg) : null;
     } catch (e) { throw new Error(BAD); }
     if (!valid(pkg)) throw new Error(BAD);
     return pkg;
