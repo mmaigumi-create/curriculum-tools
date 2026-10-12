@@ -22,8 +22,17 @@
     return PdfParse.parseCurriculumPdf(pdfjsLib, data, { cMapUrl: ctx.PDF_BASE + 'cmaps/', cMapPacked: true });
   }
 
-  function storeCohort(state, c, fileName) {
-    state.cohorts[c.year] = EduCurriculum.fromPdfCohort({ ...c, fileName });
+  // replace: 편제표 탭에서 작성한 같은 입학년도 편제를 지우고 PDF를 쓴다
+  function storeCohort(state, c, fileName, replace) {
+    const cur = EduCurriculum.fromPdfCohort({ ...c, fileName });
+    if (replace) D.usePdfCohort(state, cur);
+    else state.cohorts[c.year] = cur;
+  }
+
+  // 작성한 편제가 있는 입학년도를 PDF로 바꿀지 묻는다
+  function confirmReplace(years) {
+    if (!years.length) return false;
+    return confirm(`${years.join(', ')}학년도 입학생은 편제표 탭에서 작성한 편제를 쓰고 있습니다(PDF보다 먼저 쓰임).\n이 PDF 편제로 바꿀까요? 작성한 편제는 지워집니다.\n(취소하면 작성한 편제를 계속 씁니다.)`);
   }
 
   async function onPdf(ctx, year, file) {
@@ -40,7 +49,8 @@
           ? `이 파일에는 ${ys.join(', ')}학년도 입학생 편제만 있습니다. ${year}학년도 입학생 편제가 든 파일을 올려 주세요.`
           : '파일에서 편제표를 찾지 못했습니다. 한글에서 PDF로 저장한 파일인지 확인해 주세요.');
       }
-      ctx.store.update(s => storeCohort(s, c, file.name));
+      const replace = confirmReplace(ctx.store.state.authored[year] ? [year] : []);
+      ctx.store.update(s => storeCohort(s, c, file.name, replace));
     } catch (e) { errors[k] = e.message; }
     delete busy[k]; ctx.rerender();
   }
@@ -54,7 +64,8 @@
       const wanted = [1, 2, 3].map(g => D.gradeYear(st, g));
       const hit = found.filter(c => wanted.includes(c.year));
       if (!hit.length) throw new Error(`이 파일에서 ${wanted.join(', ')}학년도 입학생 편제를 찾지 못했습니다.`);
-      ctx.store.update(s => hit.forEach(c => storeCohort(s, c, file.name)));
+      const replace = confirmReplace(hit.map(c => c.year).filter(y => st.authored[y]));
+      ctx.store.update(s => hit.forEach(c => storeCohort(s, c, file.name, replace)));
       const miss = wanted.filter(y => !hit.some(c => c.year === y));
       if (miss.length) allMissing = miss;
       else ctx.toast(`편제 ${hit.length}개를 읽었습니다.`);
@@ -177,7 +188,7 @@
       let cls = '';
       if (au) {
         cls = 'done';
-        body = `<div class="st ok">✓ 편제표 탭에서 작성함 · 과목 줄 ${au.rows.length}개</div>`;
+        body = `<div class="st ok">✓ 편제표 탭에서 작성한 편제를 씀 · 과목 줄 ${au.rows.length}개</div>${pdf ? `<div class="st warn">올린 PDF(${esc(pdf.fileName || 'PDF')})는 쓰지 않습니다. PDF 편제를 쓰려면 "PDF로 바꾸기"로 다시 올려 주세요.</div>` : ''}`;
       } else if (pdf) {
         cls = pdf.warnings && pdf.warnings.length ? 'warn' : 'done';
         body = `<div class="st ok">✓ ${esc(pdf.fileName || 'PDF')} · 과목 줄 ${pdf.rows.length}개</div>${(pdf.warnings || []).map(w => `<div class="st warn">${esc(w)}</div>`).join('')}`;

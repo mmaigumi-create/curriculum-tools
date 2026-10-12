@@ -26,6 +26,12 @@
     return (state.authored && state.authored[y]) || (state.cohorts && state.cohorts[y]) || null;
   }
 
+  // PDF로 읽은 편제를 쓴다. 같은 입학년도에 편제표 탭에서 작성한 편제가 있으면 지운다(작성한 편제가 PDF보다 먼저 쓰이므로)
+  function usePdfCohort(state, cur) {
+    state.cohorts[cur.year] = cur;
+    if (state.authored) delete state.authored[cur.year];
+  }
+
   function legacyRows(state, g) {
     const cur = cohortFor(state, g);
     return cur ? C.toLegacyRows(cur) : null;
@@ -116,5 +122,5 @@
     return MV().build({ sem, assignments: state.assignments, assignFix: state.assignFix, candidatesFor: candidatesFor(state), edits: state.moving.edits });
   }
 
-  return { allocFor, movingFor, ASSIGN_KEYS, gradeYear, staffYear, cohortFor, legacyRows, itemsFor, candidatesFor, sectionCounts, autoSectionCounts, orgCohorts, orgCompute, autoNames, prepStatus, allSubjects, unmappedSubjects };
+  return { allocFor, movingFor, ASSIGN_KEYS, gradeYear, staffYear, cohortFor, usePdfCohort, legacyRows, itemsFor, candidatesFor, sectionCounts, autoSectionCounts, orgCohorts, orgCompute, autoNames, prepStatus, allSubjects, unmappedSubjects };
 });
