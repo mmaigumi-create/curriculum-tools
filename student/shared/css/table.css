@@ -177,3 +177,19 @@ table.grid.mini th, table.grid.mini td { padding: 3px 10px; }
 .rule b { font-size: 16px; }
 .rule em { font-style: normal; font-size: 11.5px; color: var(--muted); }
 table.grid.credits th small { font-weight: 600; color: var(--muted); }
+
+/* 이수학점 확인: 계산 범위 안내(학기 띠) */
+.scope-guide { margin-top: 12px; border: 1px solid var(--accent-line); background: #f8f9ff; border-radius: var(--radius-sm); padding: 10px 12px; font-size: 12.5px; }
+.scope-guide .sg-head { font-weight: 700; margin-bottom: 8px; }
+.scope-guide .sg-row { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; }
+.scope-guide .sg-sem { border: 1px solid var(--line, #e5e7eb); background: #fff; border-radius: 8px; padding: 6px; display: flex; flex-direction: column; gap: 4px; text-align: center; }
+.scope-guide .sg-sem b { font-size: 12px; }
+.scope-guide .sg-sem.doing { box-shadow: inset 0 0 0 2px var(--accent-line); }
+.scope-guide .pdf, .scope-guide .xl { border-radius: 5px; padding: 2px 6px; font-size: 11.5px; font-weight: 700; }
+.scope-guide .pdf { background: var(--accent-soft); color: var(--accent-strong); }
+.scope-guide .xl { background: var(--warn-soft); color: var(--warn-ink); border: 1px solid var(--warn-line); }
+.scope-guide .sg-legend { display: flex; gap: 10px; flex-wrap: wrap; margin: 8px 0 4px; }
+.scope-guide ul { margin: 4px 0 0; padding-left: 18px; color: var(--muted); }
+.scope-guide ul b { color: var(--ink, #111827); }
+@media (max-width: 720px) { .scope-guide .sg-row { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+table.grid.credits td.left { color: var(--warn-ink); font-weight: 800; background: var(--warn-soft) !important; }

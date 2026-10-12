@@ -19,6 +19,20 @@
     return `<ul class="file-list">${[...map.entries()].map(([name, v]) => `<li><span>${esc(name)}</span><span class="hint" style="margin:0">학생 ${v.students.length}명</span><button type="button" class="link" data-del="${kind}|${esc(name)}">지우기</button></li>`).join('')}</ul>`;
   }
 
+  // 졸업까지 계산하려면 앞으로 들을 학기의 선택과목 신청 파일이 모두 있어야 한다는 안내(예: 지금 1학년 2학기)
+  function scopeGuide() {
+    const sems = [['1학년', '1학기', 'done'], ['1학년', '2학기', 'doing'], ['2학년', '1학기', 'plan'], ['2학년', '2학기', 'plan'], ['3학년', '1학기', 'plan'], ['3학년', '2학기', 'plan']];
+    const cell = ([g, s, k]) => `<div class="sg-sem ${k}"><b>${g} ${s}</b>${k === 'done' ? '<span class="pdf">이수완료 ①</span>' : k === 'doing' ? '<span class="pdf">이수 중 ②</span>' : '<span class="pdf">공통과목 ③</span><span class="xl">선택과목 ④</span>'}</div>`;
+    return `<div class="scope-guide">
+      <div class="sg-head">졸업까지 부족 학점을 바르게 보려면 <b>앞으로 들을 모든 학기</b>의 선택과목 파일까지 올려야 합니다 <span class="hint" style="margin:0;font-weight:400">(아래는 지금 1학년 2학기 학생의 예)</span></div>
+      <div class="sg-row">${sems.map(cell).join('')}</div>
+      <div class="sg-legend"><span class="pdf">파란 칸 = 나이스 이수현황 PDF에서 읽음</span><span class="xl">주황 칸 = 수강신청 파일을 올려야 들어감</span></div>
+      <ul>
+        <li>예: 지금 1학년이면 이수현황 PDF와 함께 <b>2학년 1·2학기, 3학년 1·2학기</b> 선택과목이 들어 있는 수강신청(또는 배정) 파일을 모두 올립니다. 학년·학기와 상관없이 계산하고 싶은 학기까지의 파일을 빠짐없이 올리면 됩니다.</li>
+        <li>한 파일에 여러 학기가 있어도, 학기마다 따로여도 됩니다. 빠진 학기의 선택과목은 0학점으로 계산되어 <b>졸업까지 부족이 실제보다 크게</b> 나옵니다. 이런 학생은 표의 "남은 선택" 칸에 남은 학점이 보입니다.</li>
+      </ul></div>`;
+  }
+
   function uploadCard() {
     return `<section class="card"><div class="card-head"><h2>자료 올리기</h2><div class="right">${mem.busy ? `<span class="badge info">${esc(mem.busy)}</span>` : ''}</div></div>
       <div class="up-grid">
@@ -27,11 +41,12 @@
           <label class="btn btn-ghost btn-sm file-btn">PDF 선택<input type="file" accept="application/pdf,.pdf" multiple id="credit-pdf"></label>
           ${fileList(mem.pdfs, 'pdf')}</div>
         <div class="slot${mem.signups.size ? ' done' : ''}"><div class="t">② 수강신청 파일 <span class="badge ${mem.signups.size ? 'ok' : 'none'}">${mem.signups.size ? `${mem.signups.size}개` : '선택'}</span></div>
-          <div class="sub">수강신청통계 또는 교육과정편성(배정내역) 엑셀. 신청한 과목 학점을 더하고, 학번으로 번호를 붙입니다.</div>
+          <div class="sub">수강신청통계 또는 교육과정편성(배정내역) 엑셀. 신청한 과목 학점을 더하고, 학번으로 번호를 붙입니다. <b>앞으로 들을 학기의 파일을 모두</b> 올려야 졸업까지 계산됩니다(아래 안내).</div>
           <label class="btn btn-ghost btn-sm file-btn">엑셀 선택<input type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" multiple id="credit-xlsx"></label>
           ${fileList(mem.signups, 'xlsx')}</div>
       </div>
-      ${mem.errors.length ? `<div class="notice err" style="margin-top:10px"><div>${mem.errors.map(esc).join('<br>')}</div></div>` : ''}
+      ${scopeGuide()}
+      ${mem.errors.length ?`<div class="notice err" style="margin-top:10px"><div>${mem.errors.map(esc).join('<br>')}</div></div>` : ''}
       <p class="hint">올린 학생 자료는 이 화면에만 있고 저장되지 않습니다. 새로고침하면 다시 올려 주세요.</p></section>`;
   }
 
@@ -42,7 +57,7 @@
     const red = v => (v ? `<td class="short">${v}</td>` : '<td class="z">·</td>');
     const ncol = 15 + areas.length;
     const body = rows.map(s => `<tr class="g${s.grade} pick${mem.open.has(s.key) ? ' open' : ''}" data-open="${esc(s.key)}" title="누르면 교과(군)별 내역을 펼칩니다"><td>${esc(s.id || '')}</td><td class="rh${s.grade}">${s.grade}</td><td>${s.cls}</td><td>${s.no ?? ''}</td><td class="l b">${esc(s.name)}${s.hasSignup ? '' : ' <span class="badge none" title="수강신청 파일에 없음">신청 없음</span>'}</td>
-      <td>${s.done}</td><td>${s.doing}</td><td>${s.common}</td><td>${s.applied || 0}</td><td class="b">${s.sum}</td>${red(s.gradNeed)}${areas.map(a => red(s.areas[a] && s.areas[a].need)).join('')}<td class="${s.basicOver ? 'short' : ''}">${s.basic}</td><td class="${s.basicOver ? 'short' : ''}">${s.basicRoom}</td><td>${s.electiveLeft || ''}</td></tr>${mem.open.has(s.key) ? detailRow(res, s, ncol) : ''}`).join('');
+      <td>${s.done}</td><td>${s.doing}</td><td>${s.common}</td><td>${s.applied || 0}</td><td class="b">${s.sum}</td>${red(s.gradNeed)}${areas.map(a => red(s.areas[a] && s.areas[a].need)).join('')}<td class="${s.basicOver ? 'short' : ''}">${s.basic}</td><td class="${s.basicOver ? 'short' : ''}">${s.basicRoom}</td><td class="${s.electiveLeft ? 'left' : ''}"${s.electiveLeft ? ' title="신청 파일에 아직 없는 선택과목 학점. 그 학기 파일을 올리면 졸업까지 부족에 들어갑니다."' : ''}>${s.electiveLeft || ''}</td></tr>${mem.open.has(s.key) ? detailRow(res, s, ncol) : ''}`).join('');
     return `<div class="table-wrap" data-keep-scroll="credits"><table class="grid credits"><thead>${head}</thead><tbody>${body || `<tr><td colspan="${ncol}" class="hint">조건에 맞는 학생이 없습니다.</td></tr>`}</tbody></table></div>`;
   }
 
@@ -71,7 +86,9 @@
       const grades = [...new Set(res.students.map(s => s.grade))].sort();
       const nGrad = res.students.filter(s => s.gradNeed > 0).length;
       const nArea = res.students.filter(s => res.areas.some(a => s.areas[a] && s.areas[a].need > 0)).length;
-      main = `${res.notices.map(n => `<div class="notice warn">${esc(n)}</div>`).join('')}
+      const nLeft = res.students.filter(s => s.electiveLeft > 0).length;
+      const leftNote = nLeft ? `<div class="notice warn"><div><b>학생 ${nLeft}명은 아직 신청 파일에 없는 선택과목이 남아 있습니다</b>("남은 선택" 주황 칸). 이 학생들의 "졸업까지 부족"에는 그 학점이 빠져 있어 실제보다 크게 보입니다. 남은 학기의 수강신청(또는 배정) 파일도 올려 주세요. 아직 신청하지 않은 학기라면 그만큼 부족으로 남는 것이 맞습니다.</div></div>` : '';
+      main = `${res.notices.map(n => `<div class="notice warn">${esc(n)}</div>`).join('')}${leftNote}
         <div class="kpis"><div class="kpi"><span>학생</span><b>${res.students.length}</b></div><div class="kpi"><span>신청 파일과 맞춘 학생</span><b>${res.students.filter(s => s.hasSignup).length}</b></div>
           <div class="kpi bad"><span>졸업 ${res.gradCredits}학점 이상 미달</span><b>${nGrad}</b></div><div class="kpi bad"><span>교과(군) 필수 학점 미달</span><b>${nArea}</b></div><div class="kpi bad"><span>국·수·영 ${res.basicCap}학점 초과</span><b>${res.students.filter(s => s.basicOver > 0).length}</b></div><div class="kpi warn"><span>확인 필요</span><b>${res.issues.length}</b></div></div>
         <section class="card" style="padding:14px"><div class="card-head"><h2>학생별 이수학점</h2><div class="right">
