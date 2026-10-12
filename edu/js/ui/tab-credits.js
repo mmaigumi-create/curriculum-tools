@@ -23,7 +23,7 @@
     return `<section class="card"><div class="card-head"><h2>자료 올리기</h2><div class="right">${mem.busy ? `<span class="badge info">${esc(mem.busy)}</span>` : ''}</div></div>
       <div class="up-grid">
         <div class="slot${mem.pdfs.size ? ' done' : ''}"><div class="t">① 나이스 이수현황 PDF <span class="badge ${mem.pdfs.size ? 'ok' : 'none'}">${mem.pdfs.size ? `${mem.pdfs.size}개` : '필수'}</span></div>
-          <div class="sub">"반별 교육과정 이수현황"을 반마다 PDF로 저장한 파일. 여러 반·여러 학년을 한꺼번에 올려도 됩니다.</div>
+          <div class="sub">나이스 <b>교육과정 › 입학생학교교육과정관리 › 이수현황조회</b>에서 "반별 교육과정 이수현황"을 조회해 반마다 PDF로 저장한 파일. 여러 반·여러 학년을 한꺼번에 올려도 됩니다.</div>
           <label class="btn btn-ghost btn-sm file-btn">PDF 선택<input type="file" accept="application/pdf,.pdf" multiple id="credit-pdf"></label>
           ${fileList(mem.pdfs, 'pdf')}</div>
         <div class="slot${mem.signups.size ? ' done' : ''}"><div class="t">② 수강신청 파일 <span class="badge ${mem.signups.size ? 'ok' : 'none'}">${mem.signups.size ? `${mem.signups.size}개` : '선택'}</span></div>
